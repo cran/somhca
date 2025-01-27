@@ -8,7 +8,7 @@
 #' @importFrom grDevices colorRampPalette
 #' @importFrom stats cutree dist hclust na.omit
 #' @importFrom utils read.csv setTxtProgressBar txtProgressBar
-#' @param model The trained SOM model object.
+#' @param model A trained SOM model object.
 #' @param plot_type An integer specifying the type of plot to generate. Options are:
 #'   \describe{
 #'     \item{1}{Training progress plot (changes during training).}
@@ -17,7 +17,7 @@
 #'     \item{4}{Weight vector plot (patterns in the distributions of variables).}
 #'     \item{5}{Kohonen heatmaps for all variables in the dataset (distribution of single variables across the map).}
 #'   }
-#' @param data The preprocessed data matrix containing the input data. Required only for `plot_type = 5`.
+#' @param data A preprocessed data matrix containing the input data. Required only for `plot_type = 5`.
 #' @return A plot or a series of plots is generated and displayed based on the specified type.
 #' @examples
 #' # Create a toy matrix with 9 columns and 100 rows

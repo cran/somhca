@@ -4,17 +4,22 @@
 \alias{clusterSOM}
 \title{Perform Clustering on SOM Nodes}
 \usage{
-clusterSOM(model, plot_result = TRUE, file_path = NULL)
+clusterSOM(model, plot_result = TRUE, input = NULL)
 }
 \arguments{
-\item{model}{The trained SOM model object.}
+\item{model}{A trained SOM model object.}
 
 \item{plot_result}{A logical value indicating whether to plot the clustering result. Default is `TRUE`.}
 
-\item{file_path}{An optional string specifying the path to a CSV file. If provided, clusters are assigned to the observations in the original dataset, and the updated data is stored in a package environment as 'DataAndClusters'.}
+\item{input}{An optional input specifying either:
+\describe{
+  \item{File Path}{A string specifying the path to a CSV file.}
+  \item{In-Memory Data}{A data frame or matrix containing numeric data.}
+}
+If provided, clusters are assigned to the observations in the original dataset, and the updated data is stored in a package environment as 'DataAndClusters'.}
 }
 \value{
-A plot of the clusters on the SOM grid (if `plot_result = TRUE`). If `file_path` is specified, the clustered dataset is stored in a package environment for retrieval.
+A plot of the clusters on the SOM grid (if `plot_result = TRUE`). If `input` is provided, the clustered dataset is stored in a package environment for retrieval.
 }
 \description{
 Groups similar nodes of the SOM using hierarchical clustering and the KGS
@@ -27,12 +32,19 @@ data <- matrix(rnorm(900), ncol = 9, nrow = 100)  # 900 random numbers, 100 rows
 # Run the finalSOM function with the mock data
 model <- finalSOM(data, dimension = 6, iterations = 700)
 
-# Perform clustering using the mock model
+# Example 1: Perform clustering using the mock model
 clusterSOM(model, plot_result = TRUE)
 
-# Load the toy data from the package's inst/extdata/ directory, perform
-# clustering and retrieve the clustered dataset
+# Example 2: Cluster with an in-memory toy data frame
+df <- data.frame(
+  ID = paste0("Sample", 1:100), # Character column for row headings
+  matrix(rnorm(900), ncol = 9, nrow = 100) # Numeric data
+)
+clusterSOM(model, plot_result = FALSE, input = df)
+getClusterData()
+
+# Example 3: Load toy data from a CSV file, perform clustering, and retrieve the clustered dataset
 file_path <- system.file("extdata", "toy_data.csv", package = "somhca")
-clusterSOM(model, plot_result = FALSE, file_path)
+clusterSOM(model, plot_result = FALSE, input = file_path)
 getClusterData()
 }

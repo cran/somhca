@@ -7,7 +7,7 @@
 finalSOM(data, dimension, iterations)
 }
 \arguments{
-\item{data}{The preprocessed data matrix containing the input data for SOM training.}
+\item{data}{A preprocessed data matrix containing the input data for SOM training.}
 
 \item{dimension}{An integer specifying the dimension of the square SOM grid (e.g., 5 results in a 5x5 grid).}
 

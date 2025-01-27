@@ -9,7 +9,7 @@
 #' @importFrom grDevices colorRampPalette
 #' @importFrom stats cutree dist hclust na.omit
 #' @importFrom utils read.csv setTxtProgressBar txtProgressBar
-#' @param data The preprocessed data matrix containing the input data for SOM training.
+#' @param data A preprocessed data matrix containing the input data for SOM training.
 #' @param method A character string indicating the method for estimating the maximum grid dimension. Options are:
 #'   \describe{
 #'     \item{"A"}{Uses the heuristic formula by Vesanto et al. (default).}

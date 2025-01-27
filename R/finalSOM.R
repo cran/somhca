@@ -8,7 +8,7 @@
 #' @importFrom grDevices colorRampPalette
 #' @importFrom stats cutree dist hclust na.omit
 #' @importFrom utils read.csv setTxtProgressBar txtProgressBar
-#' @param data The preprocessed data matrix containing the input data for SOM training.
+#' @param data A preprocessed data matrix containing the input data for SOM training.
 #' @param dimension An integer specifying the dimension of the square SOM grid (e.g., 5 results in a 5x5 grid).
 #' @param iterations An integer defining the number of iterations for training the SOM model. Use a large value, e.g., 500 or higher, for improved training (an error message could suggest that reducing the number of iterations might be necessary).
 #' @return A trained SOM model object.

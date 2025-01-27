@@ -7,7 +7,7 @@
 generatePlot(model, plot_type, data = NULL)
 }
 \arguments{
-\item{model}{The trained SOM model object.}
+\item{model}{A trained SOM model object.}
 
 \item{plot_type}{An integer specifying the type of plot to generate. Options are:
 \describe{
@@ -18,7 +18,7 @@ generatePlot(model, plot_type, data = NULL)
   \item{5}{Kohonen heatmaps for all variables in the dataset (distribution of single variables across the map).}
 }}
 
-\item{data}{The preprocessed data matrix containing the input data. Required only for `plot_type = 5`.}
+\item{data}{A preprocessed data matrix containing the input data. Required only for `plot_type = 5`.}
 }
 \value{
 A plot or a series of plots is generated and displayed based on the specified type.

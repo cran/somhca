@@ -7,7 +7,7 @@
 optimalSOM(data, method = "A", increments, iterations)
 }
 \arguments{
-\item{data}{The preprocessed data matrix containing the input data for SOM training.}
+\item{data}{A preprocessed data matrix containing the input data for SOM training.}
 
 \item{method}{A character string indicating the method for estimating the maximum grid dimension. Options are:
 \describe{

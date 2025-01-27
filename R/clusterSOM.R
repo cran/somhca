@@ -7,10 +7,15 @@
 #' @importFrom grDevices colorRampPalette
 #' @importFrom stats cutree dist hclust na.omit
 #' @importFrom utils read.csv setTxtProgressBar txtProgressBar
-#' @param model The trained SOM model object.
+#' @param model A trained SOM model object.
 #' @param plot_result A logical value indicating whether to plot the clustering result. Default is `TRUE`.
-#' @param file_path An optional string specifying the path to a CSV file. If provided, clusters are assigned to the observations in the original dataset, and the updated data is stored in a package environment as 'DataAndClusters'.
-#' @return A plot of the clusters on the SOM grid (if `plot_result = TRUE`). If `file_path` is specified, the clustered dataset is stored in a package environment for retrieval.
+#' @param input An optional input specifying either:
+#'   \describe{
+#'     \item{File Path}{A string specifying the path to a CSV file.}
+#'     \item{In-Memory Data}{A data frame or matrix containing numeric data.}
+#'   }
+#'   If provided, clusters are assigned to the observations in the original dataset, and the updated data is stored in a package environment as 'DataAndClusters'.
+#' @return A plot of the clusters on the SOM grid (if `plot_result = TRUE`). If `input` is provided, the clustered dataset is stored in a package environment for retrieval.
 #' @examples
 #' # Create a toy matrix with 9 columns and 100 rows
 #' data <- matrix(rnorm(900), ncol = 9, nrow = 100)  # 900 random numbers, 100 rows, 9 columns
@@ -18,23 +23,41 @@
 #' # Run the finalSOM function with the mock data
 #' model <- finalSOM(data, dimension = 6, iterations = 700)
 #'
-#' # Perform clustering using the mock model
+#' # Example 1: Perform clustering using the mock model
 #' clusterSOM(model, plot_result = TRUE)
 #'
-#' # Load the toy data from the package's inst/extdata/ directory, perform
-#' # clustering and retrieve the clustered dataset
+#' # Example 2: Cluster with an in-memory toy data frame
+#' df <- data.frame(
+#'   ID = paste0("Sample", 1:100), # Character column for row headings
+#'   matrix(rnorm(900), ncol = 9, nrow = 100) # Numeric data
+#' )
+#' clusterSOM(model, plot_result = FALSE, input = df)
+#' getClusterData()
+#'
+#' # Example 3: Load toy data from a CSV file, perform clustering, and retrieve the clustered dataset
 #' file_path <- system.file("extdata", "toy_data.csv", package = "somhca")
-#' clusterSOM(model, plot_result = FALSE, file_path)
+#' clusterSOM(model, plot_result = FALSE, input = file_path)
 #' getClusterData()
 #' @export
 
-clusterSOM <- function(model, plot_result = TRUE, file_path = NULL) {
-  # Validate inputs
+clusterSOM <- function(model, plot_result = TRUE, input = NULL) {
+  # Validate model input
   if (!inherits(model, "kohonen")) {
     stop("The input model must be a trained SOM object (of class 'kohonen').")
   }
-  if (!is.null(file_path) && !file.exists(file_path)) {
-    stop("The specified file path does not exist or cannot be read.")
+
+  # Validate and load the input data
+  if (is.null(input)) {
+    data <- NULL
+  } else if (is.character(input)) {
+    if (!file.exists(input)) {
+      stop("The specified file path does not exist or cannot be read.")
+    }
+    data <- read.csv(input)
+  } else if (is.matrix(input) || is.data.frame(input)) {
+    data <- as.data.frame(input)  # Convert matrix to data frame if necessary
+  } else {
+    stop("Input must be a file path (character), data frame, or matrix.")
   }
 
   # Perform hierarchical clustering
@@ -59,13 +82,12 @@ clusterSOM <- function(model, plot_result = TRUE, file_path = NULL) {
     add.cluster.boundaries(model, som_cluster)
   }
 
-  # If file_path is provided, process and store the data
-  if (!is.null(file_path)) {
+  # Process and store the data if input is provided
+  if (!is.null(data)) {
     # Map clusters to original observations
     cluster_assignment <- som_cluster[model$unit.classif]
 
-    # Read and modify the dataset
-    data <- read.csv(file_path)
+    # Add cluster assignments to the dataset
     data$Cluster <- cluster_assignment
     data <- data[, c("Cluster", setdiff(names(data), "Cluster"))]
 
