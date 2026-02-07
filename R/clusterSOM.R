@@ -1,13 +1,22 @@
 #' Perform Clustering on SOM Nodes
 #'
-#' Groups similar nodes of the SOM using hierarchical clustering and the KGS
-#' penalty function to determine the optimal number of clusters.
+#' Groups similar nodes of a SOM using hierarchical clustering.
+#' By default, the optimal number of clusters is determined automatically using the KGS penalty function,
+#' but the user can also specify a fixed number of clusters.
 #'
-#' @import RColorBrewer aweSOM dplyr kohonen maptree
+#' @import kohonen
+#' @importFrom maptree kgs
 #' @importFrom grDevices colorRampPalette
-#' @importFrom stats cutree dist hclust na.omit
-#' @importFrom utils read.csv setTxtProgressBar txtProgressBar
+#' @importFrom RColorBrewer brewer.pal
+#' @importFrom stats dist hclust cutree
+#' @importFrom utils read.csv
+#' @importFrom fpc cluster.stats
 #' @param model A trained SOM model object.
+#' @param n_clusters Optional integer.
+#'   If provided, specifies the number of clusters to cut the SOM dendrogram into.
+#'   If NULL (default), the optimal number of clusters is determined automatically
+#'   using the KGS penalty function.
+#' @param validity_indices A logical value indicating whether to compute and print popular clustering validity indices (Silhouette, Dunn, CH, Pearson Gamma). Default is `TRUE`.
 #' @param plot_result A logical value indicating whether to plot the clustering result. Default is `TRUE`.
 #' @param input An optional input specifying either:
 #'   \describe{
@@ -15,7 +24,10 @@
 #'     \item{In-Memory Data}{A data frame or matrix containing numeric data.}
 #'   }
 #'   If provided, clusters are assigned to the observations in the original dataset, and the updated data is stored in a package environment as 'DataAndClusters'.
-#' @return A plot of the clusters on the SOM grid (if `plot_result = TRUE`). If `input` is provided, the clustered dataset is stored in a package environment for retrieval.
+#' @return
+#'   Invisibly returns `NULL`. If `plot_result = TRUE`, a plot of the clusters on the SOM grid is produced.
+#'   If `input` is provided, the clustered dataset is stored in the package
+#'   environment and can be retrieved with `getClusterData()`.
 #' @examples
 #' # Create a toy matrix with 9 columns and 100 rows
 #' data <- matrix(rnorm(900), ncol = 9, nrow = 100)  # 900 random numbers, 100 rows, 9 columns
@@ -26,7 +38,7 @@
 #' # Example 1: Perform clustering using the mock model
 #' clusterSOM(model, plot_result = TRUE)
 #'
-#' # Example 2: Cluster with an in-memory toy data frame
+#' # Example 2: Assign SOM-based clusters to an in-memory data frame
 #' df <- data.frame(
 #'   ID = paste0("Sample", 1:100), # Character column for row headings
 #'   matrix(rnorm(900), ncol = 9, nrow = 100) # Numeric data
@@ -40,7 +52,7 @@
 #' getClusterData()
 #' @export
 
-clusterSOM <- function(model, plot_result = TRUE, input = NULL) {
+clusterSOM <- function(model, n_clusters = NULL, validity_indices = TRUE, plot_result = TRUE, input = NULL) {
   # Validate model input
   if (!inherits(model, "kohonen")) {
     stop("The input model must be a trained SOM object (of class 'kohonen').")
@@ -61,16 +73,57 @@ clusterSOM <- function(model, plot_result = TRUE, input = NULL) {
   }
 
   # Perform hierarchical clustering
-  distance <- dist(getCodes(model))
-  clustering <- hclust(distance)
+  codes <- getCodes(model)
+  distance <- dist(codes, method = "euclidean")
+  clustering <- hclust(distance, method = "ward.D2")
 
   # Determine optimal number of clusters using the KGS penalty function
-  optimal_k <- kgs(clustering, distance, maxclust = 20)
-  clusters <- as.integer(names(optimal_k[which(optimal_k == min(optimal_k))]))
-  message(clusters, " clusters were determined.\n")
+  if (is.null(n_clusters)) {
+    optimal_k <- kgs(clustering, distance, maxclust = 20)
+    clusters <- as.integer(names(optimal_k[which.min(optimal_k)]))
+    message(clusters, " clusters were determined using KGS.\n")
+  } else {
+    if (!is.numeric(n_clusters) ||
+        length(n_clusters) != 1 ||
+        n_clusters < 1) {
+      stop("`n_clusters` must be a single positive integer.")
+    }
+    clusters <- as.integer(n_clusters)
+    message(clusters, " clusters were specified by the user.\n")
+  }
+
+  n_units <- nrow(codes)
+
+  if (clusters > n_units) {
+    stop(
+      "`n_clusters` (", clusters,
+      ") cannot exceed the number of SOM units (", n_units, ")."
+    )
+  }
 
   # Assign clusters to SOM units
   som_cluster <- cutree(clustering, clusters)
+
+  # Cluster validity indices (informative message)
+  if (isTRUE(validity_indices)) {
+    if (requireNamespace("fpc", quietly = TRUE)) {
+      stats <- fpc::cluster.stats(distance, som_cluster)
+
+      message(
+        "Cluster validity indices:\n",
+        sprintf("  %-25s %6.3f (higher is better; >0.25 reasonable, >0.5 strong)\n",
+                "Average Silhouette Width:", stats$avg.silwidth),
+        sprintf("  %-25s %6.3f (higher is better)\n",
+                "Dunn Index:", stats$dunn),
+        sprintf("  %-25s %6.1f (higher is better)\n",
+                "CH Index:", stats$ch),
+        sprintf("  %-25s %6.3f (closer to 1 is better)",
+                "Pearson Gamma:", stats$pearsongamma)
+      )
+    } else {
+      message("Package 'fpc' not installed; cluster validity indices skipped.")
+    }
+  }
 
   # Create a color palette
   max_colors <- max(20, clusters)  # Ensure enough colors
@@ -84,6 +137,16 @@ clusterSOM <- function(model, plot_result = TRUE, input = NULL) {
 
   # Process and store the data if input is provided
   if (!is.null(data)) {
+
+    # Validate that input matches SOM training data
+    if (nrow(data) != length(model$unit.classif)) {
+      stop(
+        "The number of rows in `input` (", nrow(data),
+        ") does not match the number of observations used to train the SOM (",
+        length(model$unit.classif), ")."
+      )
+    }
+
     # Map clusters to original observations
     cluster_assignment <- som_cluster[model$unit.classif]
 
@@ -97,6 +160,9 @@ clusterSOM <- function(model, plot_result = TRUE, input = NULL) {
     # Notify the user
     message("The clustered dataset is stored in the package environment as 'DataAndClusters'. Use `getClusterData()` to retrieve it.\n")
   }
+
+  # Return invisibly
+  invisible(NULL)
 }
 
 #' Retrieve Clustered Data
@@ -106,7 +172,7 @@ clusterSOM <- function(model, plot_result = TRUE, input = NULL) {
 #' @export
 getClusterData <- function() {
   if (!exists("DataAndClusters", envir = somhca_env)) {
-    stop("No clustered data found. Run `clusterSOM` with a valid `file_path` first.")
+    stop("No clustered data found. Run `clusterSOM` with a valid `input` first.")
   }
   return(somhca_env$DataAndClusters)
 }

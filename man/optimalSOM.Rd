@@ -4,7 +4,7 @@
 \alias{optimalSOM}
 \title{Estimate Optimal SOM Grid Size}
 \usage{
-optimalSOM(data, method = "A", increments, iterations)
+optimalSOM(data, method = "A", increments = 1, iterations = NULL)
 }
 \arguments{
 \item{data}{A preprocessed data matrix containing the input data for SOM training.}
@@ -16,12 +16,18 @@ optimalSOM(data, method = "A", increments, iterations)
   \item{numeric}{Manually specified maximum dimension.}
 }}
 
-\item{increments}{An integer specifying the step size for increasing grid dimensions. For example, set increments to 2 or 5 to increment the grid size by 2 or 5 rows/columns at each step. Smaller increments lead to more granular searches but may increase computation time; larger increments risk errors if they exceed the estimated maximum SOM grid dimensions.}
+\item{increments}{An integer specifying the step size for increasing grid dimensions (default is 1).
+For example, set increments to 2 or 5 to increment the grid size by 2 or 5 rows/columns at each step. Smaller increments lead to more granular searches but may increase computation time; larger increments risk errors if they exceed the estimated maximum SOM grid dimensions.}
 
-\item{iterations}{An integer defining the number of iterations for SOM training. A lower value, such as less than 500, helps reduce computation time. If the process takes too long or an error occurs, try reducing the number of iterations for quicker results.}
+\item{iterations}{Optional integer. Number of iterations (`rlen`) for SOM training.
+If set to NULL (default), the function automatically calculates a sensible number
+of iterations based on the dataset size.
+If you want to override this, you can provide a numeric value.
+A lower value, such as less than 500, helps reduce computation time. If the process takes too long or an error occurs, try reducing the number of iterations for quicker results.}
 }
 \value{
-A data frame summarizing quality measures and their associated optimal grid dimensions. Use these results to select the most suitable grid size for your SOM.
+A data frame summarizing optimal SOM grid dimensions and suggested iterations for each quality measure.
+  Use these results to select the most suitable grid size for your SOM.
 }
 \description{
 Computes the optimal grid size for training a SOM using various quality
@@ -33,4 +39,5 @@ data <- matrix(rnorm(900), ncol = 9, nrow = 100)  # 900 random numbers, 100 rows
 
 # Run the optimalSOM function with the mock data
 myOptimalSOM <- optimalSOM(data, method = "A", increments = 2, iterations = 300)
+
 }

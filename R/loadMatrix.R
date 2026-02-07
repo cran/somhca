@@ -3,19 +3,21 @@
 #' Load Data and Convert to a Matrix
 #'
 #' Loads data from a CSV file or an in-memory object (data frame or matrix),
-#' optionally removes row headings, and applies specified normalization methods
+#' optionally removes specified columns, and applies specified normalization methods
 #' before converting the data to a matrix. In the original dataset, rows represent
 #' observations (e.g., samples), columns represent variables (e.g., features),
 #' and all cells (except for column headers and, if applicable, row headers)
 #' must only contain numeric values.
 #'
-#' @import RColorBrewer aweSOM dplyr kohonen maptree
-#' @importFrom grDevices colorRampPalette
-#' @importFrom stats cutree dist hclust na.omit
-#' @importFrom utils read.csv setTxtProgressBar txtProgressBar
+#' @importFrom utils read.csv
 #' @param input A string specifying the path to the CSV file, or an in-memory
 #'   object (data frame or matrix).
-#' @param remove_row_headings A logical value. If `TRUE`, removes the first column of the dataset. This is useful when the first column contains non-numeric identifiers (e.g., sample names) that should be excluded from the analysis. Default is `FALSE`.
+#' @param remove_columns Optional integer, character, or vector of either.
+#'   If specified, removes the columns of the dataset indicated by position or name.
+#'   This is useful, for example, when the first column contains
+#'   non-numeric identifiers (e.g., sample names) that should be
+#'   excluded from the analysis. Default is `NULL`.
+#' @param remove_row_headings Deprecated, use `remove_columns = 1` instead. A logical value. If `TRUE`, removes the first column of the dataset. Default is `FALSE`.
 #' @param scaling A string specifying the scaling method. Options are:
 #'   \describe{
 #'     \item{"no"}{No scaling is applied (default).}
@@ -29,7 +31,7 @@
 #' file_path <- system.file("extdata", "toy_data.csv", package = "somhca")
 #'
 #' # Run the loadMatrix function with the mock data
-#' myMatrix <- loadMatrix(file_path, TRUE, "minMax")
+#' myMatrix <- loadMatrix(file_path, remove_columns = 1, scaling = "minMax")
 #'
 #' # Example 2: Load from a toy data frame
 #' df <- data.frame(
@@ -38,16 +40,16 @@
 #' )
 #'
 #' # Run the loadMatrix function with the mock data
-#' myMatrix <- loadMatrix(df, TRUE, "zScore")
+#' myMatrix <- loadMatrix(df, remove_columns = 1, scaling = "zScore")
 #'
 #' # Example 3: Load from a toy matrix
 #' mat <- matrix(rnorm(900), nrow = 100, ncol = 9) # Numeric data
 #'
 #' # Run the loadMatrix function with the mock data
-#' myMatrix <- loadMatrix(mat, FALSE, "simpleFeature")
+#' myMatrix <- loadMatrix(mat, scaling = "simpleFeature")
 #' @export
 
-loadMatrix <- function(input, remove_row_headings = FALSE, scaling = "no") {
+loadMatrix <- function(input, remove_columns = NULL, remove_row_headings = FALSE, scaling = "no") {
 
   # Determine input type and load data accordingly
   if (is.character(input)) {
@@ -60,18 +62,68 @@ loadMatrix <- function(input, remove_row_headings = FALSE, scaling = "no") {
     stop("Input must be a file path (character), data frame, or matrix.")
   }
 
-  # Remove the first column if specified
-  if (remove_row_headings) {
-    data <- data[, -1, drop = FALSE]
+  # Validate scaling argument
+  valid_scaling <- c("no", "simpleFeature", "minMax", "zScore")
+  if (!scaling %in% valid_scaling) {
+    stop(
+      "`scaling` must be one of: ",
+      paste(valid_scaling, collapse = ", ")
+    )
+  }
+
+  # Handle deprecated argument
+  if (!missing(remove_row_headings)) {
+    .Deprecated(
+      new = "remove_columns",
+      msg = "`remove_row_headings` is deprecated. Use `remove_columns = 1` instead."
+    )
+
+    if (isTRUE(remove_row_headings)) {
+      remove_columns <- unique(c(remove_columns, 1))
+    }
+  }
+
+  # Remove specified columns
+  if (!is.null(remove_columns)) {
+
+    # If character, convert column names to indices
+    if (is.character(remove_columns)) {
+      missing_cols <- setdiff(remove_columns, colnames(data))
+      if (length(missing_cols) > 0) {
+        stop(
+          "The following columns were not found in `data`: ",
+          paste(missing_cols, collapse = ", ")
+        )
+      }
+      remove_columns <- match(remove_columns, colnames(data))
+    }
+
+    # Validate numeric indices
+    if (!is.numeric(remove_columns)) {
+      stop("`remove_columns` must be numeric or character.")
+    }
+
+    if (any(remove_columns < 1 | remove_columns > ncol(data))) {
+      stop("`remove_columns` contains invalid column indices.")
+    }
+
+    data <- data[, -remove_columns, drop = FALSE]
+  }
+
+  if (!all(vapply(data, is.numeric, logical(1)))) {
+    stop("All columns must be numeric after column removal.")
   }
 
   # Perform data scaling if specified
   if (scaling == "simpleFeature") {
-    data <- apply(data, 2, function(x) x / max(x, na.rm = TRUE))
+    data[] <- lapply(data, function(x) x / max(x, na.rm = TRUE))
   } else if (scaling == "minMax") {
-    data <- apply(data, 2, function(x) (x - min(x, na.rm = TRUE)) / (max(x, na.rm = TRUE) - min(x, na.rm = TRUE)))
+    data[] <- lapply(data, function(x)
+      (x - min(x, na.rm = TRUE)) /
+        (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))
+    )
   } else if (scaling == "zScore") {
-    data <- apply(data, 2, scale)
+    data[] <- lapply(data, scale)
   }
 
   # Convert the data to a matrix

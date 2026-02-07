@@ -4,10 +4,23 @@
 \alias{clusterSOM}
 \title{Perform Clustering on SOM Nodes}
 \usage{
-clusterSOM(model, plot_result = TRUE, input = NULL)
+clusterSOM(
+  model,
+  n_clusters = NULL,
+  validity_indices = TRUE,
+  plot_result = TRUE,
+  input = NULL
+)
 }
 \arguments{
 \item{model}{A trained SOM model object.}
+
+\item{n_clusters}{Optional integer.
+If provided, specifies the number of clusters to cut the SOM dendrogram into.
+If NULL (default), the optimal number of clusters is determined automatically
+using the KGS penalty function.}
+
+\item{validity_indices}{A logical value indicating whether to compute and print popular clustering validity indices (Silhouette, Dunn, CH, Pearson Gamma). Default is `TRUE`.}
 
 \item{plot_result}{A logical value indicating whether to plot the clustering result. Default is `TRUE`.}
 
@@ -19,11 +32,14 @@ clusterSOM(model, plot_result = TRUE, input = NULL)
 If provided, clusters are assigned to the observations in the original dataset, and the updated data is stored in a package environment as 'DataAndClusters'.}
 }
 \value{
-A plot of the clusters on the SOM grid (if `plot_result = TRUE`). If `input` is provided, the clustered dataset is stored in a package environment for retrieval.
+Invisibly returns `NULL`. If `plot_result = TRUE`, a plot of the clusters on the SOM grid is produced.
+  If `input` is provided, the clustered dataset is stored in the package
+  environment and can be retrieved with `getClusterData()`.
 }
 \description{
-Groups similar nodes of the SOM using hierarchical clustering and the KGS
-penalty function to determine the optimal number of clusters.
+Groups similar nodes of a SOM using hierarchical clustering.
+By default, the optimal number of clusters is determined automatically using the KGS penalty function,
+but the user can also specify a fixed number of clusters.
 }
 \examples{
 # Create a toy matrix with 9 columns and 100 rows
@@ -35,7 +51,7 @@ model <- finalSOM(data, dimension = 6, iterations = 700)
 # Example 1: Perform clustering using the mock model
 clusterSOM(model, plot_result = TRUE)
 
-# Example 2: Cluster with an in-memory toy data frame
+# Example 2: Assign SOM-based clusters to an in-memory data frame
 df <- data.frame(
   ID = paste0("Sample", 1:100), # Character column for row headings
   matrix(rnorm(900), ncol = 9, nrow = 100) # Numeric data

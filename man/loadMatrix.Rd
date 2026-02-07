@@ -4,13 +4,24 @@
 \alias{loadMatrix}
 \title{Load Data and Convert to a Matrix}
 \usage{
-loadMatrix(input, remove_row_headings = FALSE, scaling = "no")
+loadMatrix(
+  input,
+  remove_columns = NULL,
+  remove_row_headings = FALSE,
+  scaling = "no"
+)
 }
 \arguments{
 \item{input}{A string specifying the path to the CSV file, or an in-memory
 object (data frame or matrix).}
 
-\item{remove_row_headings}{A logical value. If `TRUE`, removes the first column of the dataset. This is useful when the first column contains non-numeric identifiers (e.g., sample names) that should be excluded from the analysis. Default is `FALSE`.}
+\item{remove_columns}{Optional integer, character, or vector of either.
+If specified, removes the columns of the dataset indicated by position or name.
+This is useful, for example, when the first column contains
+non-numeric identifiers (e.g., sample names) that should be
+excluded from the analysis. Default is `NULL`.}
+
+\item{remove_row_headings}{Deprecated, use `remove_columns = 1` instead. A logical value. If `TRUE`, removes the first column of the dataset. Default is `FALSE`.}
 
 \item{scaling}{A string specifying the scaling method. Options are:
 \describe{
@@ -25,7 +36,7 @@ A matrix with the processed data.
 }
 \description{
 Loads data from a CSV file or an in-memory object (data frame or matrix),
-optionally removes row headings, and applies specified normalization methods
+optionally removes specified columns, and applies specified normalization methods
 before converting the data to a matrix. In the original dataset, rows represent
 observations (e.g., samples), columns represent variables (e.g., features),
 and all cells (except for column headers and, if applicable, row headers)
@@ -36,7 +47,7 @@ must only contain numeric values.
 file_path <- system.file("extdata", "toy_data.csv", package = "somhca")
 
 # Run the loadMatrix function with the mock data
-myMatrix <- loadMatrix(file_path, TRUE, "minMax")
+myMatrix <- loadMatrix(file_path, remove_columns = 1, scaling = "minMax")
 
 # Example 2: Load from a toy data frame
 df <- data.frame(
@@ -45,11 +56,11 @@ df <- data.frame(
 )
 
 # Run the loadMatrix function with the mock data
-myMatrix <- loadMatrix(df, TRUE, "zScore")
+myMatrix <- loadMatrix(df, remove_columns = 1, scaling = "zScore")
 
 # Example 3: Load from a toy matrix
 mat <- matrix(rnorm(900), nrow = 100, ncol = 9) # Numeric data
 
 # Run the loadMatrix function with the mock data
-myMatrix <- loadMatrix(mat, FALSE, "simpleFeature")
+myMatrix <- loadMatrix(mat, scaling = "simpleFeature")
 }

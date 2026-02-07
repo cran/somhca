@@ -4,14 +4,22 @@
 \alias{finalSOM}
 \title{Train Final SOM Model}
 \usage{
-finalSOM(data, dimension, iterations)
+finalSOM(data, dimension, iterations, chunk = 100)
 }
 \arguments{
 \item{data}{A preprocessed data matrix containing the input data for SOM training.}
 
 \item{dimension}{An integer specifying the dimension of the square SOM grid (e.g., 5 results in a 5x5 grid).}
 
-\item{iterations}{An integer defining the number of iterations for training the SOM model. Use a large value, e.g., 500 or higher, for improved training (an error message could suggest that reducing the number of iterations might be necessary).}
+\item{iterations}{An integer defining the number of iterations for training the SOM model. Use a large value, e.g., 500 or higher, for improved training (an error message could suggest that reducing the number of iterations might be necessary).
+For larger grids, more iterations may be required to ensure convergence. Reducing iterations may speed training but risk under-trained neurons.}
+
+\item{chunk}{An integer specifying the number of iterations per training block.
+The SOM will be trained in chunks of this many iterations, with a progress
+message printed after each block. This helps notify the user that the function
+is running and not frozen. Default is 100. Larger values reduce the frequency
+of messages; smaller values provide more frequent updates but may slightly
+slow execution.}
 }
 \value{
 A trained SOM model object.
