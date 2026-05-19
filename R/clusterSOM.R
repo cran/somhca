@@ -11,19 +11,16 @@
 #' @importFrom stats dist hclust cutree
 #' @importFrom utils read.csv
 #' @importFrom fpc cluster.stats
-#' @param model A trained SOM model object.
-#' @param n_clusters Optional integer.
+#' @param model In-memory SOM model object. A trained SOM model. Argument is required.
+#' @param n_clusters Integer.
 #'   If provided, specifies the number of clusters to cut the SOM dendrogram into.
 #'   If NULL (default), the optimal number of clusters is determined automatically
 #'   using the KGS penalty function.
-#' @param validity_indices A logical value indicating whether to compute and print popular clustering validity indices (Silhouette, Dunn, CH, Pearson Gamma). Default is `TRUE`.
-#' @param plot_result A logical value indicating whether to plot the clustering result. Default is `TRUE`.
-#' @param input An optional input specifying either:
-#'   \describe{
-#'     \item{File Path}{A string specifying the path to a CSV file.}
-#'     \item{In-Memory Data}{A data frame or matrix containing numeric data.}
-#'   }
-#'   If provided, clusters are assigned to the observations in the original dataset, and the updated data is stored in a package environment as 'DataAndClusters'.
+#' @param validity_indices Logical. Indicates whether to compute and print popular clustering validity indices (Silhouette, Dunn, Calinski-Harabasz, Pearson Gamma). Default is `TRUE`.
+#' @param plot_result Logical. Indicates whether to plot the clustering result. Default is `TRUE`.
+#' @param input Character or in-memory dataset. A string specifying the path to a CSV file, or an in-memory
+#'   object (data frame or matrix). Default is `NULL`.
+#'   If provided, cluster assignments are appended to the observations in the original dataset, and the updated data is stored in a package environment as 'DataAndClusters'.
 #' @return
 #'   Invisibly returns `NULL`. If `plot_result = TRUE`, a plot of the clusters on the SOM grid is produced.
 #'   If `input` is provided, the clustered dataset is stored in the package
@@ -116,9 +113,9 @@ clusterSOM <- function(model, n_clusters = NULL, validity_indices = TRUE, plot_r
         sprintf("  %-25s %6.3f (higher is better)\n",
                 "Dunn Index:", stats$dunn),
         sprintf("  %-25s %6.1f (higher is better)\n",
-                "CH Index:", stats$ch),
+                "Calinski-Harabasz Index:", stats$ch),
         sprintf("  %-25s %6.3f (closer to 1 is better)",
-                "Pearson Gamma:", stats$pearsongamma)
+                "Pearson Gamma Coefficient:", stats$pearsongamma)
       )
     } else {
       message("Package 'fpc' not installed; cluster validity indices skipped.")
@@ -151,7 +148,7 @@ clusterSOM <- function(model, n_clusters = NULL, validity_indices = TRUE, plot_r
     cluster_assignment <- som_cluster[model$unit.classif]
 
     # Add cluster assignments to the dataset
-    data$Cluster <- cluster_assignment
+    data$Cluster <- factor(cluster_assignment)
     data <- data[, c("Cluster", setdiff(names(data), "Cluster"))]
 
     # Store the data in the package environment
@@ -167,7 +164,7 @@ clusterSOM <- function(model, n_clusters = NULL, validity_indices = TRUE, plot_r
 
 #' Retrieve Clustered Data
 #'
-#' Access the dataset with cluster assignments stored by `clusterSOM`.
+#' Access the dataset with cluster assignments stored by `clusterSOM` or `ClusterX`.
 #' @return A data frame with the clustered dataset.
 #' @export
 getClusterData <- function() {

@@ -2,28 +2,31 @@
 % Please edit documentation in R/optimalSOM.R
 \name{optimalSOM}
 \alias{optimalSOM}
-\title{Estimate Optimal SOM Grid Size}
+\title{Estimate Optimal SOM Grid Size based on the Data}
 \usage{
 optimalSOM(data, method = "A", increments = 1, iterations = NULL)
 }
 \arguments{
-\item{data}{A preprocessed data matrix containing the input data for SOM training.}
+\item{data}{Matrix containing numeric data. A preprocessed data matrix containing the input data for SOM training. Argument is required.}
 
-\item{method}{A character string indicating the method for estimating the maximum grid dimension. Options are:
+\item{method}{Character or integer. Method for estimating the maximum grid dimension. One of:
 \describe{
   \item{"A"}{Uses the heuristic formula by Vesanto et al. (default).}
   \item{"B"}{Applies an alternative heuristic approach.}
   \item{numeric}{Manually specified maximum dimension.}
 }}
 
-\item{increments}{An integer specifying the step size for increasing grid dimensions (default is 1).
-For example, set increments to 2 or 5 to increment the grid size by 2 or 5 rows/columns at each step. Smaller increments lead to more granular searches but may increase computation time; larger increments risk errors if they exceed the estimated maximum SOM grid dimensions.}
+\item{increments}{Integer. Step size for increasing grid dimensions.
+For example, set increments to 2 or 5 to increment the grid size by 2 or 5 rows/columns at each step.
+Smaller increments lead to more granular searches but may increase computation time;
+larger increments risk errors if they exceed the estimated maximum SOM grid dimensions.
+Default is 1.}
 
-\item{iterations}{Optional integer. Number of iterations (`rlen`) for SOM training.
+\item{iterations}{Integer. Number of iterations (`rlen`) for SOM training.
 If set to NULL (default), the function automatically calculates a sensible number
 of iterations based on the dataset size.
 If you want to override this, you can provide a numeric value.
-A lower value, such as less than 500, helps reduce computation time. If the process takes too long or an error occurs, try reducing the number of iterations for quicker results.}
+A lower value, such as less than 500, helps reduce computation time—if the process takes too long or an error occurs, try reducing the number of iterations for quicker results.}
 }
 \value{
 A data frame summarizing optimal SOM grid dimensions and suggested iterations for each quality measure.

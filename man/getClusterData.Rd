@@ -10,5 +10,5 @@ getClusterData()
 A data frame with the clustered dataset.
 }
 \description{
-Access the dataset with cluster assignments stored by `clusterSOM`.
+Access the dataset with cluster assignments stored by `clusterSOM` or `ClusterX`.
 }

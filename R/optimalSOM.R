@@ -1,6 +1,4 @@
-## Define the function optimalSOM() to estimate the SOM training grid size based on the data.
-
-#' Estimate Optimal SOM Grid Size
+#' Estimate Optimal SOM Grid Size based on the Data
 #'
 #' Computes the optimal grid size for training a SOM using various quality
 #' measures and heuristic approaches.
@@ -11,20 +9,23 @@
 #' @importFrom stats sd
 #' @importFrom utils txtProgressBar setTxtProgressBar
 #'
-#' @param data A preprocessed data matrix containing the input data for SOM training.
-#' @param method A character string indicating the method for estimating the maximum grid dimension. Options are:
+#' @param data Matrix containing numeric data. A preprocessed data matrix containing the input data for SOM training. Argument is required.
+#' @param method Character or integer. Method for estimating the maximum grid dimension. One of:
 #'   \describe{
 #'     \item{"A"}{Uses the heuristic formula by Vesanto et al. (default).}
 #'     \item{"B"}{Applies an alternative heuristic approach.}
 #'     \item{numeric}{Manually specified maximum dimension.}
 #'   }
-#' @param increments An integer specifying the step size for increasing grid dimensions (default is 1).
-#'   For example, set increments to 2 or 5 to increment the grid size by 2 or 5 rows/columns at each step. Smaller increments lead to more granular searches but may increase computation time; larger increments risk errors if they exceed the estimated maximum SOM grid dimensions.
-#' @param iterations Optional integer. Number of iterations (`rlen`) for SOM training.
+#' @param increments Integer. Step size for increasing grid dimensions.
+#'   For example, set increments to 2 or 5 to increment the grid size by 2 or 5 rows/columns at each step.
+#'   Smaller increments lead to more granular searches but may increase computation time;
+#'   larger increments risk errors if they exceed the estimated maximum SOM grid dimensions.
+#'   Default is 1.
+#' @param iterations Integer. Number of iterations (`rlen`) for SOM training.
 #'   If set to NULL (default), the function automatically calculates a sensible number
 #'   of iterations based on the dataset size.
 #'   If you want to override this, you can provide a numeric value.
-#'   A lower value, such as less than 500, helps reduce computation time. If the process takes too long or an error occurs, try reducing the number of iterations for quicker results.
+#'   A lower value, such as less than 500, helps reduce computation time—if the process takes too long or an error occurs, try reducing the number of iterations for quicker results.
 #'
 #' @return A data frame summarizing optimal SOM grid dimensions and suggested iterations for each quality measure.
 #'   Use these results to select the most suitable grid size for your SOM.

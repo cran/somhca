@@ -1,20 +1,19 @@
-## Define the function generatePlot() to produce different types of plots.
-
 #' Generate SOM Visualization Plots
 #'
 #' Creates various types of plots to visualize and evaluate the trained SOM model.
 #'
 #' @import kohonen
-#' @param model A trained SOM model object.
-#' @param plot_type An integer specifying the type of plot to generate. Options are:
+#' @param model In-memory SOM model object. A trained SOM model. Argument is required.
+#' @param plot_type Integer. Specifies the type of plot to generate. One of:
 #'   \describe{
 #'     \item{1}{Training progress plot (changes during training).}
 #'     \item{2}{Node count plot (number of samples mapped to each node) for assessing map quality.}
-#'     \item{3}{U-matrix plot (visualizing similarities between neighboring nodes).}
+#'     \item{3}{U-matrix plot (similarities between neighboring nodes).}
 #'     \item{4}{Weight vector plot (patterns in the distributions of variables).}
 #'     \item{5}{Kohonen heatmaps for all variables in the dataset (distribution of single variables across the map).}
 #'   }
-#' @param data A preprocessed data matrix containing the input data. Required only for `plot_type = 5`.
+#'   Argument is required.
+#' @param data Matrix containing numeric data. A preprocessed data matrix containing the input data for SOM training. Default is `NULL` (required only for `plot_type = 5`).
 #' @return A plot or a series of plots is generated and displayed based on the specified type.
 #' @examples
 #' # Create a toy matrix with 9 columns and 100 rows

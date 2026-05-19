@@ -13,23 +13,20 @@ clusterSOM(
 )
 }
 \arguments{
-\item{model}{A trained SOM model object.}
+\item{model}{In-memory SOM model object. A trained SOM model. Argument is required.}
 
-\item{n_clusters}{Optional integer.
+\item{n_clusters}{Integer.
 If provided, specifies the number of clusters to cut the SOM dendrogram into.
 If NULL (default), the optimal number of clusters is determined automatically
 using the KGS penalty function.}
 
-\item{validity_indices}{A logical value indicating whether to compute and print popular clustering validity indices (Silhouette, Dunn, CH, Pearson Gamma). Default is `TRUE`.}
+\item{validity_indices}{Logical. Indicates whether to compute and print popular clustering validity indices (Silhouette, Dunn, Calinski-Harabasz, Pearson Gamma). Default is `TRUE`.}
 
-\item{plot_result}{A logical value indicating whether to plot the clustering result. Default is `TRUE`.}
+\item{plot_result}{Logical. Indicates whether to plot the clustering result. Default is `TRUE`.}
 
-\item{input}{An optional input specifying either:
-\describe{
-  \item{File Path}{A string specifying the path to a CSV file.}
-  \item{In-Memory Data}{A data frame or matrix containing numeric data.}
-}
-If provided, clusters are assigned to the observations in the original dataset, and the updated data is stored in a package environment as 'DataAndClusters'.}
+\item{input}{Character or in-memory dataset. A string specifying the path to a CSV file, or an in-memory
+object (data frame or matrix). Default is `NULL`.
+If provided, cluster assignments are appended to the observations in the original dataset, and the updated data is stored in a package environment as 'DataAndClusters'.}
 }
 \value{
 Invisibly returns `NULL`. If `plot_result = TRUE`, a plot of the clusters on the SOM grid is produced.

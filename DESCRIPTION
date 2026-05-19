@@ -1,7 +1,7 @@
 Package: somhca
 Type: Package
 Title: Self-Organising Maps Coupled with Hierarchical Cluster Analysis
-Version: 0.3.0
+Version: 0.4.0
 Authors@R: person(given = "Gianluca",
                   family = "Pastorelli",
                   role = c("aut", "cre"),
@@ -10,7 +10,7 @@ Authors@R: person(given = "Gianluca",
 Description: Implements self-organising maps combined with hierarchical cluster analysis (SOM-HCA) for clustering and visualization of high-dimensional data.
     The package includes functions to estimate the optimal map size based on various quality measures
     and to generate a model using the selected dimensions.
-    It also performs hierarchical clustering on the map nodes to group similar units.
+    It also performs hierarchical clustering on the map nodes or other data to group similar units.
     Documentation about the SOM-HCA method is provided in Pastorelli et al. (2024)
     <doi:10.1002/xrs.3388>.
 License: MIT + file LICENSE
@@ -19,9 +19,9 @@ Imports: kohonen, aweSOM, dplyr, RColorBrewer, grDevices, stats, utils,
         maptree, fpc
 RoxygenNote: 7.3.3
 NeedsCompilation: no
-Packaged: 2026-02-07 13:44:19 UTC; B041254
+Packaged: 2026-05-19 13:07:47 UTC; B041254
 Author: Gianluca Pastorelli [aut, cre] (ORCID:
     <https://orcid.org/0000-0001-6926-1952>)
 Maintainer: Gianluca Pastorelli <gianluca.pastorelli@gmail.com>
 Repository: CRAN
-Date/Publication: 2026-02-07 14:10:02 UTC
+Date/Publication: 2026-05-19 13:20:02 UTC

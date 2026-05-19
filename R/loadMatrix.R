@@ -1,5 +1,3 @@
-## Define the function loadMatrix() to load the data.
-
 #' Load Data and Convert to a Matrix
 #'
 #' Loads data from a CSV file or an in-memory object (data frame or matrix),
@@ -10,20 +8,20 @@
 #' must only contain numeric values.
 #'
 #' @importFrom utils read.csv
-#' @param input A string specifying the path to the CSV file, or an in-memory
-#'   object (data frame or matrix).
-#' @param remove_columns Optional integer, character, or vector of either.
-#'   If specified, removes the columns of the dataset indicated by position or name.
+#' @param input Character or in-memory dataset. A string specifying the path to a CSV file, or an in-memory
+#'   object (data frame or matrix). Argument is required.
+#' @param remove_columns Integer, character, or vector of either.
+#'   If specified, removes the columns of the dataset indicated by positions or names.
 #'   This is useful, for example, when the first column contains
 #'   non-numeric identifiers (e.g., sample names) that should be
 #'   excluded from the analysis. Default is `NULL`.
-#' @param remove_row_headings Deprecated, use `remove_columns = 1` instead. A logical value. If `TRUE`, removes the first column of the dataset. Default is `FALSE`.
-#' @param scaling A string specifying the scaling method. Options are:
+#' @param remove_row_headings Deprecated, use `remove_columns = 1` instead. Logical. If `TRUE`, removes the first column of the dataset. Default is `FALSE`.
+#' @param scaling Character. Normalization method to apply to the values in each column of the dataset. One of:
 #'   \describe{
 #'     \item{"no"}{No scaling is applied (default).}
-#'     \item{"simpleFeature"}{Each column is divided by its maximum value.}
-#'     \item{"minMax"}{Each column is scaled to range [0, 1].}
-#'     \item{"zScore"}{Each column is Z-score standardized.}
+#'     \item{"simpleFeature"}{Divided by the maximum value.}
+#'     \item{"minMax"}{Scale values to range [0, 1].}
+#'     \item{"zScore"}{standardize values by subtracting the mean and dividing by the standard deviation.}
 #'   }
 #' @return A matrix with the processed data.
 #' @examples
